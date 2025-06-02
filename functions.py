@@ -72,13 +72,13 @@ all_columns_types(df_loyalty)
 all_columns_types(df_activity)
 
 #%% Estadísticas Básicas Variables Numéricas y Frecuencias Variables Categóricas
-def description(df, types_list):
+def description_by_type(df, types_list):
     for type in types_list:
         print('Description of variables of type', type)
         print(df.describe(include=[type]).T)
         print('-----------------------------------------')
 
-description(df_total,unique)
+description_by_type(df_total,unique)
 
 #%% Transformación de tipo de datos y Estandarización de nombre de variables
 def standard_name(df, rep1=".", rep2="_"):
@@ -165,12 +165,11 @@ def knn_impute(df, columns):
     for col in columns:
         df[f'knn_{col}'] = imputer_knn.fit_transform(df[[col]])
 
-#%%
-columns = ['salary']
+columns = ['salary', 'salary0', 'salary1']
 iter_impute(df_total,columns)
 #knn_impute(df_total,columns)
-#%%
-plot_numbers(df_total, ['iter_salary', 'salary']) 
+
+plot_numbers(df_total, ['salary', 'salary0', 'salary1', 'iter_salary', 'iter_salary0', 'iter_salary1']) 
 
 # %% Identify structure of data and look for outliers
 #numeric variables
@@ -200,7 +199,7 @@ def box_hist_cont(df, columns):
         # usando el método 'plt.ylabel()' cambiamos el nombre del eje y
         plt.ylabel("Count")
 
-columns =['flights_booked', 'distance', 'points_accumulated', 'iter_salary', 'salary']
+columns =['flights_booked', 'distance', 'points_accumulated', 'iter_salary', 'salary', 'iter_salary0', 'salary0', 'iter_salary1', 'salary1']
 box_hist_cont(df_total, columns)
 
 #%%
@@ -260,17 +259,16 @@ def describe_numeric(df,columns):
 
     print(summary_df[columns])
 
-columns =['flights_booked', 'distance', 'points_accumulated', 'iter_salary', 'salary']
+columns =['flights_booked', 'distance', 'points_accumulated', 'iter_salary', 'salary', 'iter_salary0', 'salary0', 'iter_salary1', 'salary1', 'year']
 describe_numeric(df_total, columns)
 
-# %%
 #%% Analisis of categorical variables with short span
 # Crear un subplot con 2 filas y 1 columna
 def cat_plot(df, columns):
     for col in columns:
         absolute_frequency = df[col].value_counts()
         relative_frequency = df[col].value_counts(normalize=True) * 100
-
+        print(relative_frequency)  
         # creamos un DataFrame para mostrar ambas tablas
         frequency_table = pd.DataFrame({col: absolute_frequency.index,
                                         'Absolute Frequency': absolute_frequency.values,
@@ -295,8 +293,11 @@ def cat_plot(df, columns):
         axes[1].set_ylabel('Relative Frequency (%)')
         axes[1].tick_params(axis='x', rotation=45)
 
-        plt.tight_layout();
+        plt.tight_layout();      
 
-columns = ['year','province','gender','education']
+columns = ['year','province','gender','education', 'loyalty_card']
 cat_plot(df_total,columns)
+
+columns = ['province','gender','education','loyalty_card']
+description_by_type(df_total[columns],['object'])
 #%%

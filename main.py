@@ -60,5 +60,6 @@ count_discrete(df_total, columns)
 columns =['flights_booked', 'distance', 'points_accumulated', 'iter_salary', 'salary']
 describe_numeric(df_total, columns)
 
-
+columns = ['year','province','gender','education']
+cat_plot(df_total,columns)
 

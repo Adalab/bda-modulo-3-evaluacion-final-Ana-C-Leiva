@@ -135,3 +135,7 @@ description_by_type(df_total[columns],['object'])
     # Almost half (45%) of the clients have the star loyalty card
     # 3 unique values
 
+# FASE 2 - Questions
+
+# ¿Cómo se distribuye la cantidad de vuelos reservados por mes durante el año?
+grouped_df = df_final.groupby(['year', 'month'])['flights_booked'].sum().reset_index()

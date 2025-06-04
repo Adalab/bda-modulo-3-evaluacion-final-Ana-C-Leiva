@@ -165,6 +165,11 @@ def knn_impute(df, columns):
     for col in columns:
         df[f'knn_{col}'] = imputer_knn.fit_transform(df[[col]])
 
+df_total['salary0'] = df_total['salary']
+df_total['salary0'] = df_total['salary0'].apply(lambda x: 0 if x < 0 else x)
+df_total['salary1'] = df_total['salary']
+df_total['salary1'] = df_total['salary1'].apply(lambda x: -x if x < 0 else x)
+
 columns = ['salary', 'salary0', 'salary1']
 iter_impute(df_total,columns)
 #knn_impute(df_total,columns)
@@ -262,7 +267,7 @@ def describe_numeric(df,columns):
 columns =['flights_booked', 'distance', 'points_accumulated', 'iter_salary', 'salary', 'iter_salary0', 'salary0', 'iter_salary1', 'salary1', 'year']
 describe_numeric(df_total, columns)
 
-#%% Analisis of categorical variables with short span
+#%% Analysis of categorical variables with short span
 # Crear un subplot con 2 filas y 1 columna
 def cat_plot(df, columns):
     for col in columns:
@@ -300,4 +305,200 @@ cat_plot(df_total,columns)
 
 columns = ['province','gender','education','loyalty_card']
 description_by_type(df_total[columns],['object'])
+#%% Duplicates
+def duplicated_rows(df):
+    duplicated_rows = df[df.duplicated()]
+    number_rows = len(duplicated_rows)
+    print('Duplicated rows:')
+    print(number_rows)
+    
+    df_no_duplicates = df.drop_duplicates()
+    return df_no_duplicates 
+
+df_final = duplicated_rows(df_total)
+
+duplicated_rows(df_final)
+#%% FASE 2 - Questions
+# 1 Grouping by year and month, I get the sum of all the flights_boked
+grouped_df = df_final.groupby(['year', 'month'])['flights_booked'].sum().reset_index()
+grouped_df['share'] = grouped_df['flights_booked'] / grouped_df.groupby('year')['flights_booked'].transform('sum')*100
+
+# barplot for both years
+plt.figure(figsize=(12, 8))
+sns.barplot(x='month', y='share', hue='year', data=grouped_df)
+# Plot 1 - ordered by month
+plt.xlabel('Month')
+plt.ylabel('Share of Flights Booked')
+plt.title('Share of Flights Booked per Month for 2017 and 2018')
+plt.show()
+
+# Plot 2 - ordered by share
+# Sort the data by year and share
+df_sorted = grouped_df.sort_values(by=['year', 'share'], ascending=[True, False])
+
+# Create subplots
+fig, axes = plt.subplots(1, 2, figsize=(16, 8), sharey=True)
+
+# Prepare and plot for 2017
+data_2017 = df_sorted[df_sorted['year'] == 2017].sort_values(by='share', ascending=False)
+sns.barplot(x='month', y='share',
+            data=data_2017,
+            order=data_2017['month'],
+            ax=axes[0],
+            palette='rocket')
+axes[0].set_title('Share of Flights Booked per Month for 2017')
+axes[0].set_xlabel('Month')
+axes[0].set_ylabel('Share of Flights Booked')
+
+# Prepare and plot for 2018
+data_2018 = df_sorted[df_sorted['year'] == 2018].sort_values(by='share', ascending=False)
+sns.barplot(x='month', y='share',
+            data=data_2018,
+            order=data_2018['month'],
+            ax=axes[1],
+            palette='mako')
+axes[1].set_title('Share of Flights Booked per Month for 2018')
+axes[1].set_xlabel('Month')
+axes[1].set_ylabel('Share of Flights Booked')
+
+# Final layout
+plt.tight_layout()
+plt.show()
+
+# %%
+# Question 2 - ¿Existe una relación entre la distancia 
+# de los vuelos y los puntos acumulados por los cliente?
+sns.regplot(x = "distance", 
+            y = "points_accumulated", 
+            data = df_final, 
+            marker = "d", 
+            line_kws = {"color": "black", "linewidth": 1}, # cambiamos el color y el grosor de la linea de tendencia
+            scatter_kws = {"color": "teal", "s": 1} # cambiamos el color y el tamaño de los puntos del scaterplot
+            )
+
+# cambiamos los nombres de los ejes como hemos estado haciendo hasta ahora
+plt.xlabel("Flight Distance")
+plt.ylabel("Points Accumulated")
+
+# ponemos título a la gráfica
+plt.title("Relationship between flight distance and accumulated points")
+
+# quitamos la linea de arriba y de la derecha
+plt.gca().spines['right'].set_visible(False) # quitamos la línea de la derecha
+plt.gca().spines["top"].set_visible(False) # quitamos la línea de arriba;
+
 #%%
+df_final.columns
+# %%
+# Question 3 - ¿Cuál es la distribución de los clientes por provincia o estado?
+df_province = df_final.groupby('province')['loyalty_number'].nunique().reset_index()
+df_province = df_province.rename(columns={'loyalty_number': 'clients_count'}) 
+df_province['share'] = df_province['clients_count'] / df_province['clients_count'].sum()*100
+df_province = df_province.sort_values(by='share', ascending=False)
+
+# barplot for both years
+sns.barplot(x='province', y='share', hue='province', data=df_province, palette='rocket')
+# Plot 1 - ordered by month
+plt.xlabel('province')
+plt.xticks(rotation=45, ha='right')
+plt.ylabel('Share of Clients')
+plt.title('Share of clients by Province')
+plt.show()
+# %%
+# Question 4 - ¿Cómo se compara el salario promedio entre los diferentes 
+# niveles educativos de los clientes?
+df_salary_education = df_final.groupby(['education'])[['iter_salary', 'iter_salary0','iter_salary1']].mean().reset_index()
+df_salary_education = df_salary_education.sort_values(by='iter_salary', ascending=False).round(0)
+ordered_education_levels = df_salary_education['education'].tolist()
+
+fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(20, 5))
+
+sns.boxplot(x='education', 
+            y='iter_salary1', 
+            data=df_final, 
+            palette='rocket', hue='education',
+            order=ordered_education_levels,
+            ax=axes[0])
+
+axes[0].set_xlabel('Education Level')
+axes[0].set_ylabel('Salary')
+axes[0].set_title('Box Plot of Salary by Education Level')
+axes[0].tick_params(rotation=45) # Tilt x-axis labels for readability
+sns.despine(top=True, right=True)
+
+
+ax = sns.barplot(x='education', 
+            y='iter_salary1', 
+            hue='education', 
+            data=df_salary_education, 
+            palette='rocket')
+
+axes[1].set_xlabel('Education category')
+axes[1].set_ylabel('Average salary')
+axes[1].set_title('Average salary by education level')
+axes[1].tick_params(rotation=45)
+sns.despine(top=True, right=True)
+
+for container in ax.containers:
+    ax.bar_label(container, fmt='%.2f%%', label_type='edge', padding=3)
+
+
+plt.suptitle("Comparación de salario por nivel educativo")
+
+# añadimos el 'plt.tigth_layout()' para que se ajusten los elementos de la gráfica
+plt.tight_layout()
+
+# %%
+# Question 5 - ¿Cuál es la proporción de clientes con diferentes tipos de tarjetas de fidelidad?
+df_loyalty_level = df_final.groupby('loyalty_card')['loyalty_number'].nunique().reset_index()
+df_loyalty_level = df_loyalty_level.rename(columns={'loyalty_number': 'clients_count'}) 
+df_loyalty_level['share'] = df_loyalty_level['clients_count'] / df_loyalty_level['clients_count'].sum()*100
+df_loyalty_level = df_loyalty_level.sort_values(by='share', ascending=False)
+df_loyalty_level
+
+ax = sns.barplot(x='loyalty_card', 
+            y='share', 
+            hue='loyalty_card', 
+            data=df_loyalty_level, 
+            palette='rocket')
+
+plt.xlabel('Loyalty Category')
+plt.xticks(rotation=45, ha='right')
+plt.ylabel('Share of Clients')
+plt.title('Share of clients by Loyalty Category')
+sns.despine(top=True, right=True)
+
+for container in ax.containers:
+    ax.bar_label(container, fmt='%.2f%%', label_type='edge', padding=3)
+
+
+plt.show()
+# %%
+# Question 6 - ¿Cómo se distribuyen los clientes según su estado civil y género?
+df_marital_gender = df_final.groupby(['marital_status', 'gender'])['loyalty_number'].nunique().reset_index()
+df_marital_gender['share'] = df_marital_gender['loyalty_number'] / df_marital_gender.groupby('gender')['loyalty_number'].transform('sum')*100
+
+df_marital_gender_f = df_marital_gender[df_marital_gender['gender']=='female'].sort_values(by='share', ascending=False)
+ordered_marital_status = df_marital_gender_f['marital_status'].tolist()
+
+#%%
+# barplot for both years
+plt.figure(figsize=(12, 8))
+sns.barplot(x='marital_status', 
+            y='share', 
+            hue='gender', 
+            palette = 'viridis',
+            data=df_marital_gender,
+            order=ordered_marital_status
+            )
+# Plot 1 - ordered by month
+plt.xlabel('Marital Status')
+plt.ylabel('Share of clients')
+plt.title('Share of clients by marital status and gender')
+plt.show()
+# %%
+## FASE 3 - BONUS
+# se busca evaluar si existen diferencias significativas en el número de vuelos 
+# reservados según el nivel educativo de los clientes.
+
+# Filter data - keep: 'flights_booked' and 'education'

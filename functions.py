@@ -722,7 +722,6 @@ def fase_3():
                 # 
             # General conclussion: at 95% confidence level, it is not possible to reject that the means are the same for both samples  
 
-#%%
 df_final = fase_1()
 #OBS:
 # FLIGHTS BOOKED
@@ -788,8 +787,10 @@ df_final = fase_1()
 # Question 1
 question1()
 # OBS:
-    # The months with higher levels of flights booked are July, June and auguts for both years
-    # The months with lowest demand are February, and January - again for both years
+    # More trips in the Canadian summer
+        # The months with higher demand are July, June and auguts for both years
+    # Less trips in the Canadian winter
+        # The months with lowest demand are February, and January - again for both years
 
 # Question 2
 question2()
@@ -807,7 +808,7 @@ question3()
     # The three provinces with the highest share of customers are:
         # Ontario, British Columbia and Quebec
         # All with two digits
-    # The resto of the provinces are more similar to each other when it comes to the share of clients
+    # The rest of the provinces are more similar to each other when it comes to the share of clients
 
 #Question 4
 question4()
@@ -817,7 +818,8 @@ question4()
         # The group with the lowest mean income is the group with lower education level
     # Dispersion:
         # The group with the highest dispersion of data is the one with doctorate
-        # The group with lowest dispersion is the group with education level of 
+        # The group with lowest dispersion is the group with education level of college
+            # For this group all the observations seem to be concentrated tightly around the mean
 
 # Question 5
 question5()
@@ -881,5 +883,3 @@ fase_3()
     # The parametric and non parametric estimations lead to the same conclussion - except for one of them that is not that relliable given the sample size, the assumptions tests, and the confidence level
     
     #FINAL CONCLUSSION: There is no evidence to rull out that the means are equall.
-
-# %%

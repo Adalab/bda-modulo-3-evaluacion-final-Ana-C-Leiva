@@ -788,7 +788,8 @@ df_final = fase_1()
 # Question 1
 question1()
 # OBS:
-    # The months with higher levels of flights booked are July, 
+    # The months with higher levels of flights booked are July, June and auguts for both years
+    # The months with lowest demand are February, and January - again for both years
 
 # Question 2
 question2()
@@ -871,5 +872,14 @@ fase_3()
         # For both cases of specification of the samples, I do not reject the null hypothesis (equall averages)
         # Conclussion: the means do not seam to differ in those two samples
     # Parametric
+        # Sample including zeros:
+            # I only reject the null hypothesis at 10% of significance level
+            # But at higher levels of confidence, such as 95% or more, it is not possible to reject the null hypothesis
+        # Sample without zeros:
+            # It is not possible to reject the null hipothesis to any common significance level
+        # General conclussion: at 95% confidence level, it is not possible to reject that the means are the same for both samples  
+    # The parametric and non parametric estimations lead to the same conclussion - except for one of them that is not that relliable given the sample size, the assumptions tests, and the confidence level
+    
+    #FINAL CONCLUSSION: There is no evidence to rull out that the means are equall.
 
 # %%

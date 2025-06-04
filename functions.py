@@ -1,20 +1,19 @@
-#%% Import of libraries
-def imports():
-    import pandas as pd
-    import numpy as np
+#%%
+import pandas as pd
+import numpy as np
 
-    from sklearn.impute import SimpleImputer
-    from sklearn.experimental import enable_iterative_imputer
-    from sklearn.impute import IterativeImputer
-    from sklearn.impute import KNNImputer
+from sklearn.impute import SimpleImputer
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
+from sklearn.impute import KNNImputer
 
-    from scipy.stats import kstest
-    from scipy.stats import levene
-    from scipy.stats import mannwhitneyu
-    import scipy.stats as st
+from scipy.stats import kstest
+from scipy.stats import levene
+from scipy.stats import mannwhitneyu
+import scipy.stats as st
 
-    import seaborn as sns
-    import matplotlib.pyplot as plt
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 def conf():
     pd.set_option('display.max_columns', None) 
@@ -249,7 +248,7 @@ def duplicated_rows(df):
     return df_no_duplicates 
 
 def fase_1():
-    imports()
+
     conf()
 
     df_loyalty = read('customer_loyalty_history.csv')
@@ -346,6 +345,9 @@ def fase_1():
     # Duplicates
     df_final = duplicated_rows(df_total)
     duplicated_rows(df_final)
+
+    return df_final
+
 
 #FASE 2 - QUESTIONS
 # Question 1 - ¿Cómo se distribuye la cantidad de vuelos reservados por mes durante el año?
@@ -549,7 +551,7 @@ def question6():
     plt.tight_layout()
     plt.show()
 
-# %%
+
 ## FASE 3 - BONUS
 # se busca evaluar si existen diferencias significativas en el número de vuelos 
 # reservados según el nivel educativo de los clientes.
@@ -720,8 +722,8 @@ def fase_3():
                 # 
             # General conclussion: at 95% confidence level, it is not possible to reject that the means are the same for both samples  
 
-# %%
-fase_1()
+#%%
+df_final = fase_1()
 #OBS:
 # FLIGHTS BOOKED
     # MODE = 0 - Flights booked seem to have a mass concentration around 0, several without bookings
@@ -785,21 +787,89 @@ fase_1()
 # FASE 2
 # Question 1
 question1()
+# OBS:
+    # The months with higher levels of flights booked are July, 
 
 # Question 2
 question2()
+# OBS: 
+    # There seems to be a clear linnear correlation between distance and accumulated points
+    # This positive correlation increases the higher the loyalty level is, for the most
+        # That is why there are three different lines with distinct collors
+    # There is also a fourth line that is probably a combination of all the loyalty groups
+        # This might be the result of some customers redeeming the points, cashing them, or loosing them because of tim
+        # This assumption should be checked 
 
 # Question 3
 question3()
+# OBS:
+    # The three provinces with the highest share of customers are:
+        # Ontario, British Columbia and Quebec
+        # All with two digits
+    # The resto of the provinces are more similar to each other when it comes to the share of clients
 
 #Question 4
 question4()
+# OBS:
+    # In line with the theory about human capital and wages:
+        # The group with a higher mean salary is the one with the highest education level
+        # The group with the lowest mean income is the group with lower education level
+    # Dispersion:
+        # The group with the highest dispersion of data is the one with doctorate
+        # The group with lowest dispersion is the group with education level of 
 
 # Question 5
 question5()
+# OBS:
+    # The Fidelity group whith the highest share of clients is 'Star', around 45%
+    # The group with less is 'Aurora'
+        # This result together with the one from Q2 might suggest that this is the most exclusive category 
 
 # Question 6
 question6()
+#OBS:
+    # The share of marital status is pretty similar across gender groups.
+    # Probably there is no statistically different difference among those groups share
+        # But I have not checked this yet
 
 ## FASE 3 - BONUS
 fase_3()
+# OBS
+    # First figure seems to show an accumulation of observations around clients with no flights booked
+        # This pattern is repeated across all the groups
+    # By inspecting the mean and the distribution of the variable
+        # 'flights_booked' at first glance they seem highly similar
+        # similar means and IQR, situated both at similar levels
+        # The most differences are in the magnitude of the outliers 
+        # and a bit less on the SD
+    #  I created two groups - one including the zeros and other one without them
+        # In order to check the stability of the estimations
+        # With zeros:
+            # due to the size of the subsamples, we can assume that the Central
+            # limit theorem applies - and assume normality, regardless of the underlying
+            # distribution
+        # Without zeros
+            # The same applies
+    # Test for normality:
+        # Based on the KS-test and the the two specifications of samples 
+            # I reject the null hypothesis that the samples are Normally Distributed
+    # Equality of variances:
+        # With and without zeros - I do not reject the null hipothesis (at usual levels of confidence)
+        # That means that I cannot reject the null hipothesis and that there is no statistical difference 
+            # between the samples' variances
+
+        # Based on the Normality test, I should run a non parametric test of means,
+        # But it is a promosing feature that the variances do not seem to be different in any of the sample specifications
+        # Due to the CLT I will also conduct conduct parametric estimations (due to the samples being big)
+
+    # Statistical tests
+    #### Hypothesis
+    # - H0: average flights booked (high_educated) = average flights_booked (lower_educated) 
+    # - H1: average flights booked (high_educated) != average flights_booked (lower_educated) 
+
+    # Non-Parametric
+        # For both cases of specification of the samples, I do not reject the null hypothesis (equall averages)
+        # Conclussion: the means do not seam to differ in those two samples
+    # Parametric
+
+# %%
